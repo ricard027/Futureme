@@ -1,31 +1,40 @@
 "use client";
 import { FunctionComponent, useState, ChangeEvent } from "react";
+//Components
+import Input from "../components/Input";
+import Button from "../components/Button";
+import { TrashIcon } from "@heroicons/react/24/outline";
+// Utilities
 import fibonacciWithEmojis from "../utils";
 
-import { TrashIcon } from "@heroicons/react/24/outline";
 interface FibonacciPageProps {}
 const FibonacciPage: FunctionComponent<FibonacciPageProps> = () => {
-  const [error, setError] = useState(false);
-
+  const [error, setError] = useState("");
   const [inputValue, setInputValue] = useState<string>("");
   const [result, setResult] = useState<string>("");
   const [results, setResults] = useState<string[]>([inputValue]);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    if (typeof value !== Number) {
-      setError(true);
+    const numberValue = parseInt(value);
+    if (isNaN(numberValue)) {
+      setError("please enter a valid number");
+      return;
     }
     setInputValue(value);
   };
 
   const handleButtonClick = () => {
+    if (inputValue.length == 0) {
+      setError("Please enter a number");
+    }
     const number = parseInt(inputValue, 10);
     if (!isNaN(number)) {
       const sequence = fibonacciWithEmojis(number);
       setResult(sequence);
       setResults((prevResults) => [...prevResults, sequence]);
-      console.log(inputValue);
+      setError("");
+      setInputValue("");
     }
   };
 
@@ -37,20 +46,13 @@ const FibonacciPage: FunctionComponent<FibonacciPageProps> = () => {
 
   return (
     <div className="flex flex-col justify-center items-center container m-auto h-[100vh]">
-      <div className="flex flex-col shadow-md py-4">
-        <label className="text-white text-md mb-2">enter your number</label>
-        <input
-          value={inputValue}
-          onChange={handleInputChange}
-          className="shadow-md rounded-lg py-2 px-4"
-        />
-      </div>
-      <button
-        onClick={handleButtonClick}
-        className="bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 px-4 rounded-lg mt-2 hover:scale-105 mb-2"
-      >
-        LETS GO
-      </button>
+      <Input
+        value={inputValue}
+        handleInputChange={handleInputChange}
+        error={error}
+      />
+      <Button handleButtonClick={handleButtonClick}>LETS GO</Button>
+
       <div className="flex flex-col gap-2 h-[500px] overflow-y-auto p-1 mt-4">
         {results
           .filter((result) => result.length > 0)
